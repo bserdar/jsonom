@@ -33,6 +33,8 @@ used to keep a common interner when processing multiple documents. If
 a `nil` interner is passed to these functions, an new interner will be
 used to store the keys of that document only.
 
+## Example
+
 ```
 func main() {
       input:=`{"key":"value", "arr": [ 1,2 ]}`
