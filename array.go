@@ -66,11 +66,12 @@ func (a Array) MarshalJSON() ([]byte, error) {
 	return json.Marshal(a.Marshal())
 }
 
-func (e Array) Encode(w io.Writer) error {
+// Encode array as JSON
+func (a Array) Encode(w io.Writer) error {
 	if _, err := w.Write([]byte{'['}); err != nil {
 		return err
 	}
-	for i, value := range e.nodes {
+	for i, value := range a.nodes {
 		if i > 0 {
 			if _, err := w.Write([]byte{','}); err != nil {
 				return err
