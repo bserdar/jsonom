@@ -18,6 +18,37 @@ func UnmarshalReader(input io.Reader, interner StringInterner) (Node, error) {
 	return Decode(dec, interner)
 }
 
+// UnmarshalIntf creates a JSON object model from a tree of objects,
+// as output from json.Marshal
+func UnmarshalIntf(input interface{}) (Node, error) {
+	if input == nil {
+		return nil, nil
+	}
+	if obj, ok := input.(map[string]interface{}); ok {
+		ret := &Object{}
+		for k, v := range obj {
+			n, err := UnmarshalIntf(v)
+			if err != nil {
+				return nil, err
+			}
+			ret.Set(k, n)
+		}
+		return ret, nil
+	}
+	if arr, ok := input.([]interface{}); ok {
+		ret := &Array{}
+		for _, v := range arr {
+			n, err := UnmarshalIntf(v)
+			if err != nil {
+				return nil, err
+			}
+			ret.Append(n)
+		}
+		return ret, nil
+	}
+	return NewValue(input), nil
+}
+
 // Decode a JSON object using the given decoder. Interner is optional,
 // it will be used if given. If omitted, an internal temporary
 // interner will be used.
