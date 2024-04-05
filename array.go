@@ -10,7 +10,7 @@ type Array struct {
 	nodes []Node
 }
 
-func (a Array) isNode() {}
+func (a *Array) isNode() {}
 
 // NewArray returns an array with the given nodes
 func NewArray(el ...Node) *Array {
@@ -18,17 +18,17 @@ func NewArray(el ...Node) *Array {
 }
 
 // Len returns the number of elements in the array
-func (a Array) Len() int {
+func (a *Array) Len() int {
 	return len(a.nodes)
 }
 
 // N returns the n'th element of the array
-func (a Array) N(index int) Node {
+func (a *Array) N(index int) Node {
 	return a.nodes[index]
 }
 
 // Set the node at the given index
-func (a Array) Set(index int, value Node) {
+func (a *Array) Set(index int, value Node) {
 	a.nodes[index] = value
 }
 
@@ -49,7 +49,7 @@ func (a *Array) Clear() {
 
 // Marshal returns a []interface{} for the array, where each element
 // is recursively marshaled
-func (a Array) Marshal() interface{} {
+func (a *Array) Marshal() interface{} {
 	ret := make([]interface{}, 0, len(a.nodes))
 	for _, x := range a.nodes {
 		var value interface{}
@@ -62,12 +62,12 @@ func (a Array) Marshal() interface{} {
 }
 
 // MarshalJSON allows using json.Marshal for an array node
-func (a Array) MarshalJSON() ([]byte, error) {
+func (a *Array) MarshalJSON() ([]byte, error) {
 	return json.Marshal(a.Marshal())
 }
 
 // Encode array as JSON
-func (a Array) Encode(w io.Writer) error {
+func (a *Array) Encode(w io.Writer) error {
 	if _, err := w.Write([]byte{'['}); err != nil {
 		return err
 	}
@@ -85,4 +85,14 @@ func (a Array) Encode(w io.Writer) error {
 		return err
 	}
 	return nil
+}
+
+// Call f for each index-value until it returns false
+func (a *Array) Each(f func(int, Node) bool) bool {
+	for index, item := range a.nodes {
+		if !f(index, item) {
+			return false
+		}
+	}
+	return true
 }
