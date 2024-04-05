@@ -26,7 +26,7 @@ func NewValue(value interface{}) *Value {
 		b, _ := json.Marshal(value)
 		return &Value{value: json.Number(b)}
 	}
-	panic(fmt.Sprint("Cannot decode value: %v", value))
+	panic(fmt.Sprintf("Cannot decode value: %v", value))
 }
 
 // StringValue creates a new Value from a string

@@ -20,12 +20,12 @@ func NewKeyValue(key string, value Node) *KeyValue {
 }
 
 // Key returns the key of the key-value pair
-func (k KeyValue) Key() string {
+func (k *KeyValue) Key() string {
 	return k.key
 }
 
 // Value returns the value of the key-value pair
-func (k KeyValue) Value() Node {
+func (k *KeyValue) Value() Node {
 	return k.value
 }
 
@@ -38,7 +38,7 @@ func (k *KeyValue) Set(value Node) {
 }
 
 // Encode a key-value pair
-func (k KeyValue) Encode(w io.Writer) error {
+func (k *KeyValue) Encode(w io.Writer) error {
 	data, err := json.Marshal(k.key)
 	if err != nil {
 		return err
@@ -162,7 +162,7 @@ func (o *Object) Marshal() interface{} {
 	ret := make(map[string]interface{}, len(o.kv))
 	for _, x := range o.kv {
 		var value interface{}
-		if x.Value != nil {
+		if x.value != nil {
 			value = x.value.Marshal()
 		}
 		ret[x.key] = value
@@ -171,12 +171,12 @@ func (o *Object) Marshal() interface{} {
 }
 
 // MarshalJSON allows using json.Marshal for an object node
-func (o Object) MarshalJSON() ([]byte, error) {
+func (o *Object) MarshalJSON() ([]byte, error) {
 	return json.Marshal(o.Marshal())
 }
 
 // Encode a json object
-func (o Object) Encode(w io.Writer) error {
+func (o *Object) Encode(w io.Writer) error {
 	if _, err := w.Write([]byte{'{'}); err != nil {
 		return err
 	}
@@ -194,4 +194,14 @@ func (o Object) Encode(w io.Writer) error {
 		return err
 	}
 	return nil
+}
+
+// Call f for each key-value until it returns false
+func (o *Object) Each(f func(*KeyValue) bool) bool {
+	for _, item := range o.kv {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
 }
